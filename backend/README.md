@@ -1,6 +1,42 @@
 # Legend Tour Backend
 
+Turiscore API es un backend diseñado para promover el turismo cultural y místico en Colombia, mostrando cómo la historia, los mitos y las leyendas se entrelazan con lugares reales que hoy pueden visitarse.
+permite ubicar la región donde ocurrió el suceso, Mostrar hoteles, restaurantes y sitios turísticos cercanos. Así mismo los usuarios pueden leer reseñas públicas sin registrarse, dar la opción a usuarios registrados de dejar sus reseñas o crear su propia leyenda o historia vivida en estos lugares.
+
 Backend en NestJS para la plataforma Legend Tour: gestión de regiones, leyendas, lugares de evento, hoteles, restaurantes, historias míticas y usuarios con autenticación JWT.
+
+## Problema
+
+El turismo en Colombia se ha concentrado principalmente en la promoción comercial de destinos, priorizando la venta de paquetes y las calificaciones generales de los lugares. Sin embargo, este enfoque deja de lado el valor cultural, histórico y mágico que caracteriza a muchas regiones del país.
+
+## Propuesta de valor
+En Turiscore API no solo visitas un lugar, lo vives a través de su leyenda.”
+
+- Fomenta el turismo cultural, histórico y paranormal.
+- Preserva la tradición oral y el patrimonio mítico colombiano.
+- Ofrece información real y dinámica (lugares, reseñas, hoteles, restaurantes).
+- Permite a los usuarios crear sus propias historias inspiradas en experiencias reales.
+
+## Funcionalidad
+| **Actividad**                                                           | **Descripción**                                                           |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| 1. Mostrar leyendas y mitos de Colombia                         | Cada mito incluye su historia, región y descripción.                  |
+| 2. Ubicar la región del suceso                                  | Se muestran mapas y coordenadas del evento.                           |
+| 3. Mostrar hoteles, restaurantes y sitios paranormales cercanos | Relacionados con la leyenda o la zona donde ocurrió el suceso.        |
+| 4. Sistema de reseñas públicas                                  | Cualquier visitante puede ver reseñas y opiniones sin iniciar sesión. |
+| 5. Creación de reseñas y experiencias                           | Solo usuarios autenticados pueden dejar su reseña.                    |
+| 6. Creación de historias personales (mini leyendas)            | Los usuarios pueden compartir su propia experiencia mítica.           |
+| 7. Panel de administrador                            | Permite gestionar leyendas, lugares y contenidos. 
+
+## ¿Qué nos diferencia?
+
+Turiscore API no es una plataforma turística tradicional:
+
+- Inicia por la leyenda, no por el destino, ofreciendo un enfoque cultural y narrativo único.
+- Conecta historia y turismo, mostrando hoteles, restaurantes y lugares reales asociados a cada mito.
+- Incluye eventos paranormales reportados, ampliando la experiencia hacia el turismo alternativo.
+- Permite que usuarios autenticados creen sus propias historias o leyendas.
+- Preserva el patrimonio oral colombiano, integrando tecnología con tradición cultural.
 
 ## Tecnologías
 
@@ -126,9 +162,10 @@ npm run test:e2e
 2. Agrega tests y documentación.
 3. Haz PR y describe cambios.
 
-## Licencia
+## Authors
 
-MIT.
-
----
-Proyecto generado a partir de NestJS starter y adaptado para Legend Tour.
+- [@cifuentesrubiela](https://www.github.com/octokatherine)
+- [@isabel2017rosa-hub](https://www.github.com/octokatherine)
+- [@Loren4mel](https://www.github.com/octokatherine)
+- [@Maleja-ortiz12](https://www.github.com/octokatherine)
+- [@sindysuarez1](https://www.github.com/octokatherine)

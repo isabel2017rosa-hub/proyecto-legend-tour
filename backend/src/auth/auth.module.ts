@@ -1,0 +1,29 @@
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { Credential } from '../credentials/entities/credential.entity';
+import { UsersModule } from '../users/users.module';
+import { CredentialsModule } from '../credentials/credentials.module';
+import { User } from '../users/entities/user.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([Credential, User]),
+    UsersModule,
+    CredentialsModule,
+    PassportModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'secret_key_dev',
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
