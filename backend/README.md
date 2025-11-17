@@ -1,16 +1,18 @@
-# Legend Tour Backend
+<p align="center">
+  <img src="src/docs/imagenes/logo.png" width="250" />
+</p>
 
-Turiscore API es un backend diseñado para promover el turismo cultural y místico en Colombia, mostrando cómo la historia, los mitos y las leyendas se entrelazan con lugares reales que hoy pueden visitarse.
+Legen Tour es un backend diseñado para promover el turismo cultural y místico en Colombia, mostrando cómo la historia, los mitos y las leyendas se entrelazan con lugares reales que hoy pueden visitarse.
 permite ubicar la región donde ocurrió el suceso, Mostrar hoteles, restaurantes y sitios turísticos cercanos. Así mismo los usuarios pueden leer reseñas públicas sin registrarse, dar la opción a usuarios registrados de dejar sus reseñas o crear su propia leyenda o historia vivida en estos lugares.
 
-Backend en NestJS para la plataforma Legend Tour: gestión de regiones, leyendas, lugares de evento, hoteles, restaurantes, historias míticas y usuarios con autenticación JWT.
+Este backend en NestJS gestiona de regiones, leyendas, lugares de evento, hoteles, restaurantes, historias míticas y usuarios con autenticación JWT.
 
 ## Problema
 
 El turismo en Colombia se ha concentrado principalmente en la promoción comercial de destinos, priorizando la venta de paquetes y las calificaciones generales de los lugares. Sin embargo, este enfoque deja de lado el valor cultural, histórico y mágico que caracteriza a muchas regiones del país.
 
 ## Propuesta de valor
-En Turiscore API no solo visitas un lugar, lo vives a través de su leyenda.”
+En Legen Tour API no solo visitas un lugar, lo vives a través de su leyenda.”
 
 - Fomenta el turismo cultural, histórico y paranormal.
 - Preserva la tradición oral y el patrimonio mítico colombiano.
@@ -30,7 +32,7 @@ En Turiscore API no solo visitas un lugar, lo vives a través de su leyenda.”
 
 ## ¿Qué nos diferencia?
 
-Turiscore API no es una plataforma turística tradicional:
+Legen Tour API no es una plataforma turística tradicional:
 
 - Inicia por la leyenda, no por el destino, ofreciendo un enfoque cultural y narrativo único.
 - Conecta historia y turismo, mostrando hoteles, restaurantes y lugares reales asociados a cada mito.
