@@ -1,58 +1,119 @@
+// src/regions/regions.controller.ts
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-  Check,
-} from 'typeorm';
-import { Legend } from '../../legends/entities/legend.entity';
-import { MythStory } from '../../myth-stories/entities/myth-story.entity';
-import { EventPlace } from '../../event-places/entities/event-place.entity';
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ParseUUIDPipe,
+  Query,
+  ParseFloatPipe,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { RegionsService } from './regions.service';
+import { CreateRegionDto } from './dto/create-region.dto';
+import { UpdateRegionDto } from './dto/update-region.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Region } from './entities/region.entity';
 
-/**
- * Entidad Region
- * Regiones geográficas con leyendas asignadas.
- * TODO: Agregar índices para latitude/longitude y legendId si se realizan búsquedas frecuentes.
- */
-@Index('idx_regions_name', ['name'])
-@Index('idx_regions_lat_lng', ['latitude', 'longitude'])
-@Check('chk_regions_latitude_range', '"latitude" >= -90 AND "latitude" <= 90')
-@Check('chk_regions_longitude_range', '"longitude" >= -180 AND "longitude" <= 180')
-@Entity('regions')
-export class Region {
-  @PrimaryGeneratedColumn('uuid')
-  id_region: string;
+@ApiTags('Regions')
+@Controller('regions')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
+export class RegionsController {
+  constructor(private readonly regionsService: RegionsService) {}
 
-  @Column({ type: 'varchar', length: 150 })
-  name: string; // Longitud alineada con DTO (150)
+  @Post()
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Crear región (solo admin)' })
+  @ApiCreatedResponse({ description: 'Región creada correctamente.', type: Region })
+  create(@Body() createRegionDto: CreateRegionDto) {
+    return this.regionsService.create(createRegionDto);
+  }
 
-  @Column({ type: 'text' })
-  description: string;
+  @Get()
+  @ApiOperation({ summary: 'Listar todas las regiones' })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
+  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiOkResponse({ description: 'Lista de regiones.', type: [Region] })
+  findAll(@Query('skip', ParseIntPipe) skip?: number, @Query('take', ParseIntPipe) take?: number) {
+    return this.regionsService.findAll({ skip, take });
+  }
 
-  /** Latitud en grados decimales (-90 a 90) */
-  @Column({ type: 'float' })
-  latitude: number;
+  @Get('nearby')
+  @ApiOperation({ summary: 'Buscar regiones cercanas' })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
+  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiOkResponse({ description: 'Regiones cercanas ordenadas por distancia.', type: [Region] })
+  findNearby(
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+    @Query('radius', ParseFloatPipe) radius: number = 50,
+    @Query('skip', ParseIntPipe) skip?: number,
+    @Query('take', ParseIntPipe) take?: number,
+  ) {
+    return this.regionsService.findByCoordinates(lat, lng, radius, { skip, take });
+  }
 
-  /** Longitud en grados decimales (-180 a 180) */
-  @Column({ type: 'float' })
-  longitude: number;
+  @Get('search/by-name')
+  @ApiOperation({ summary: 'Buscar regiones por nombre (case-insensitive)' })
+  @ApiQuery({ name: 'q', required: true, type: String })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
+  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiOkResponse({ description: 'Resultados de la búsqueda de regiones.', type: [Region] })
+  searchByName(
+    @Query('q') q: string,
+    @Query('skip', ParseIntPipe) skip?: number,
+    @Query('take', ParseIntPipe) take?: number,
+  ) {
+    return this.regionsService.searchByName(q, { skip, take });
+  }
 
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  @Get('by-legend/:legendId')
+  @ApiOperation({ summary: 'Listar regiones por leyenda asociada' })
+  @ApiQuery({ name: 'skip', required: false, type: Number })
+  @ApiQuery({ name: 'take', required: false, type: Number })
+  @ApiOkResponse({ description: 'Regiones filtradas por leyenda.', type: [Region] })
+  findByLegend(
+    @Param('legendId', ParseUUIDPipe) legendId: string,
+    @Query('skip', ParseIntPipe) skip?: number,
+    @Query('take', ParseIntPipe) take?: number,
+  ) {
+    return this.regionsService.findByLegend(legendId, { skip, take });
+  }
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener región por ID' })
+  @ApiOkResponse({ description: 'Región encontrada.', type: Region })
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.regionsService.findOne(id);
+  }
 
-  @ManyToOne(() => Legend, (legend) => legend.regions)
-  legend: Legend;
+  @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Actualizar región (solo admin)' })
+  @ApiOkResponse({ description: 'Región actualizada.', type: Region })
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateRegionDto: UpdateRegionDto,
+  ) {
+    return this.regionsService.update(id, updateRegionDto);
+  }
 
-  @OneToMany(() => MythStory, (story) => story.region)
-  mythStories: MythStory[];
-
-  @OneToMany(() => EventPlace, (place) => place.region)
-  eventPlaces: EventPlace[];
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'Eliminar región (solo admin)' })
+  @ApiResponse({ status: 200, description: 'Región eliminada.' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.regionsService.remove(id);
+  }
 }
