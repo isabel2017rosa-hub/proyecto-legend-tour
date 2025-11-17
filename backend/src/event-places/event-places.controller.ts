@@ -21,6 +21,8 @@ import {
   ApiResponse,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { EventPlacesService } from './event-places.service';
 import { CreateEventPlaceDto } from './dto/create-event-place.dto';
@@ -42,21 +44,21 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 )
 export class EventPlacesController {
   constructor(private readonly service: EventPlacesService) {}
-
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, AdminGuard)
-  @ApiOperation({ summary: 'Crear un lugar/evento' })
+  @ApiOperation({ summary: 'Crear un lugar/evento (solo admin)' })
   @ApiCreatedResponse({ description: 'Lugar/evento creado correctamente.', type: EventPlace })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
-  @ApiResponse({ status: 401, description: 'No autorizado.' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden crear lugares/eventos.' })
   async create(@Body() dto: CreateEventPlaceDto): Promise<EventPlace> {
     return this.service.create(dto);
   }
-
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Listar todos los lugares/eventos' })
+  @ApiOperation({ summary: 'Listar todos los lugares/eventos (público)' })
+  @ApiOkResponse({ description: 'Lista de lugares/eventos', type: [EventPlace] })
   @ApiOkResponse({ description: 'Listado obtenido correctamente.', type: [EventPlace] })
   async findAll(): Promise<EventPlace[]> {
     return this.service.findAll();

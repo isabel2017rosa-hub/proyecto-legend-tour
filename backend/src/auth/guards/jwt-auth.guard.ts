@@ -6,10 +6,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     return super.canActivate(context);
   }
-
   handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
-      throw new UnauthorizedException('Token inválido o no proporcionado');
+      throw new UnauthorizedException('Token JWT inválido, expirado o no proporcionado. Verifica tu autenticación.');
     }
     return user;
   }

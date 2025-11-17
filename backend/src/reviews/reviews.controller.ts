@@ -11,7 +11,7 @@ import {
   ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -24,24 +24,24 @@ import { GetUser } from '../auth/decorators/get-user.decorator';
 @ApiBearerAuth('JWT-auth')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
-
   @Post()
-  @ApiOperation({ summary: 'Crear una reseña' })
-  @ApiResponse({ status: 201, description: 'Reseña creada' })
+  @ApiOperation({ summary: 'Crear una reseña (admin y usuarios normales)' })
+  @ApiCreatedResponse({ description: 'Reseña creada exitosamente' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   create(@Body() createReviewDto: CreateReviewDto, @GetUser() user: any) {
     return this.reviewsService.create(createReviewDto, user.id);
   }
-
   @Get()
-  @ApiOperation({ summary: 'Listar todas las reseñas' })
-  @ApiResponse({ status: 200, description: 'Lista de reseñas' })
+  @ApiOperation({ summary: 'Listar todas las reseñas (admin y usuarios normales)' })
+  @ApiOkResponse({ description: 'Lista de reseñas' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   findAll() {
     return this.reviewsService.findAll();
   }
-
   @Get('my-reviews')
-  @ApiOperation({ summary: 'Obtener mis reseñas' })
-  @ApiResponse({ status: 200, description: 'Mis reseñas' })
+  @ApiOperation({ summary: 'Obtener mis reseñas (admin y usuarios normales)' })
+  @ApiOkResponse({ description: 'Reseñas del usuario autenticado' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   findMyReviews(@GetUser() user: any) {
     return this.reviewsService.findByUser(user.id);
   }

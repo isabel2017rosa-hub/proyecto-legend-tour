@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
 @Injectable()
@@ -12,15 +12,19 @@ export class RolesGuard implements CanActivate {
     // Si no se especificaron roles, se permite el acceso
     if (!roles || roles.length === 0) {
       return true;
-    }
-    const request = context.switchToHttp().getRequest();
+    }    const request = context.switchToHttp().getRequest();
     const user = request.user;
     // Si no hay usuario en la request (no autenticado), se deniega
-    if (!user) return false;
+    if (!user) {
+      throw new ForbiddenException('Acceso denegado: Solo los administradores están autorizados.');
+    }
 
     // Verificación simple: si se requiere el rol 'admin' validamos que user.isAdmin sea true
     if (roles.includes('admin')) {
-      return !!user.isAdmin;
+      if (!user.isAdmin) {
+        throw new ForbiddenException('Acceso denegado: Solo los administradores están autorizados.');
+      }
+      return true;
     }
 
     // Para otros roles personalizados se podría ampliar la lógica aquí

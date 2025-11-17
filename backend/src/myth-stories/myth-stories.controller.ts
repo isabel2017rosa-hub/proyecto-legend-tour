@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, UsePipes, ValidationPipe, BadRequestException, ParseUUIDPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse, ApiResponse, ApiUnauthorizedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { MythStoriesService } from './myth-stories.service';
 import { CreateMythStoryDto } from './dto/create-myth-story.dto';
 import { UpdateMythStoryDto } from './dto/update-myth-story.dto';
@@ -13,19 +13,18 @@ import { MythStory } from './entities/myth-story.entity';
 @UsePipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true, validationError: { target: false } }))
 export class MythStoriesController {
   constructor(private readonly service: MythStoriesService) {}
-
   @Post()
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Crear historia mítica' })
+  @ApiOperation({ summary: 'Crear historia mítica (admin y usuarios normales)' })
   @ApiCreatedResponse({ description: 'Historia creada correctamente.', type: MythStory })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   async create(@Body() dto: CreateMythStoryDto, @GetUser() user: any): Promise<MythStory> {
     return this.service.create(dto, user.id);
   }
-
   @Get()
   @Public()
-  @ApiOperation({ summary: 'Listar historias míticas' })
+  @ApiOperation({ summary: 'Listar historias míticas (público)' })
   @ApiOkResponse({ description: 'Listado obtenido.', type: [MythStory] })
   async findAll(): Promise<MythStory[]> {
     return this.service.findAll();

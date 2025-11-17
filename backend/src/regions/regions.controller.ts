@@ -13,7 +13,7 @@ import {
   ParseFloatPipe,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiOkResponse, ApiCreatedResponse, ApiUnauthorizedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { RegionsService } from './regions.service';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { UpdateRegionDto } from './dto/update-region.dto';
@@ -28,21 +28,22 @@ import { Region } from './entities/region.entity';
 @ApiBearerAuth('JWT-auth')
 export class RegionsController {
   constructor(private readonly regionsService: RegionsService) {}
-
   @Post()
   @UseGuards(RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Crear región (solo admin)' })
   @ApiCreatedResponse({ description: 'Región creada correctamente.', type: Region })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden crear regiones.' })
   create(@Body() createRegionDto: CreateRegionDto) {
     return this.regionsService.create(createRegionDto);
   }
-
   @Get()
-  @ApiOperation({ summary: 'Listar todas las regiones' })
+  @ApiOperation({ summary: 'Listar todas las regiones (admin y usuarios normales)' })
   @ApiQuery({ name: 'skip', required: false, type: Number })
   @ApiQuery({ name: 'take', required: false, type: Number })
   @ApiOkResponse({ description: 'Lista de regiones.', type: [Region] })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   findAll(@Query('skip', ParseIntPipe) skip?: number, @Query('take', ParseIntPipe) take?: number) {
     return this.regionsService.findAll({ skip, take });
   }
@@ -95,24 +96,26 @@ export class RegionsController {
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.regionsService.findOne(id);
   }
-
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Actualizar región (solo admin)' })
   @ApiOkResponse({ description: 'Región actualizada.', type: Region })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden actualizar regiones.' })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateRegionDto: UpdateRegionDto,
   ) {
     return this.regionsService.update(id, updateRegionDto);
   }
-
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('admin')
   @ApiOperation({ summary: 'Eliminar región (solo admin)' })
   @ApiResponse({ status: 200, description: 'Región eliminada.' })
+  @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden eliminar regiones.' })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.regionsService.remove(id);
   }
