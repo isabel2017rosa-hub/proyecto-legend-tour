@@ -32,6 +32,8 @@ export class MythStory {
   @ManyToOne(() => Region, (region) => region.mythStories)
   region: Region;
 
-  @ManyToOne(() => User, (user) => user.mythStories)
+   @ManyToOne(() => User, (user) => user.mythStories, {
+    onDelete: 'CASCADE',       // Si borran el user → borrar historias
+  })
   user: User;
 }

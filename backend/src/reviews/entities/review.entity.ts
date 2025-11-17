@@ -40,6 +40,8 @@ export class Review {
   @Column({ type: 'uuid' })
   entityId: string;
 
-  @ManyToOne(() => User, (user) => user.reviews)
-  user: User;
+    @ManyToOne(() => User, (user) => user.reviews, {
+  onDelete: 'CASCADE',
+})
+user: User;
 }

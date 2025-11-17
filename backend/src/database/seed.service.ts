@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
@@ -14,6 +14,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class SeedService {
+  private readonly logger = new Logger(SeedService.name);
+
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Credential) private readonly credRepo: Repository<Credential>,
@@ -57,21 +59,38 @@ export class SeedService {
     };
   }
 
-  private async clear() {
-    // Delete in reverse dependency order
-    await this.storyRepo.delete({});
-    await this.reviewRepo.delete({});
-    await this.eventPlaceRepo.delete({});
-    await this.hotelRepo.delete({});
-    await this.restaurantRepo.delete({});
-    await this.regionRepo.delete({});
-    await this.legendRepo.delete({});
-    await this.credRepo.delete({});
-    await this.userRepo.delete({});
+
+
+private async clear() {
+  // BORRAR EN ORDEN INVERSO A LAS RELACIONES
+  // Usar consultas para eliminar todos los registros respetando las FK
+  
+  try {
+    // Primero eliminar las entidades que dependen de otras
+    await this.reviewRepo.createQueryBuilder().delete().execute();       // Review depende de Users y EventPlaces/Hotels/Restaurants
+    await this.storyRepo.createQueryBuilder().delete().execute();        // MythStories depende de Users y Regions
+    await this.eventPlaceRepo.createQueryBuilder().delete().execute();   // EventPlace depende de Region, Legend, Hotel, Restaurant
+    
+    // Luego eliminar las entidades principales
+    await this.credRepo.createQueryBuilder().delete().execute();         // Credential depende de User
+    await this.userRepo.createQueryBuilder().delete().execute();         // User sin dependencias
+    await this.hotelRepo.createQueryBuilder().delete().execute();        // Hotel depende de nada
+    await this.restaurantRepo.createQueryBuilder().delete().execute();   // Restaurant depende de nada
+    await this.regionRepo.createQueryBuilder().delete().execute();       // Region depende de Legend
+    await this.legendRepo.createQueryBuilder().delete().execute();       // Legend sin dependencias
+    
+    console.log(' Base de datos limpiada exitosamente');
+    this.logger.log(' Base de datos limpiada exitosamente');
+  } catch (error) {
+    console.error(' Error al limpiar la base de datos:', error.message);
+    throw error;
   }
+}
+
 
   private async createLegends() {
     const data: Partial<Legend>[] = [
+      // Leyendas originales
       {
         name: 'Serpiente Dorada',
         description: 'Una serpiente mítica que protege tesoros ocultos en los Andes.',
@@ -82,12 +101,30 @@ export class SeedService {
         description: 'Espíritus que hablan a través del viento guiando a viajeros perdidos.',
         imageUrl: 'legend-forest.jpg',
       },
+      // Leyendas colombianas
+      {
+        name: 'La Llorona',
+        description: 'Una mujer que vaga lamentándose por sus hijos perdidos. Se aparece cerca de ríos y lagunas.',
+        imageUrl: '/images/llorona.jpg',
+      },
+      {
+        name: 'El Sombrerón',
+        description: 'Un pequeño hombre elegante con un gran sombrero negro, que persigue mujeres y trenza crines de caballos.',
+        imageUrl: '/images/sombreron.jpg',
+      },
+      {
+        name: 'La Patasola',
+        description: 'Criatura de una sola pierna que engaña a los hombres en la selva transformándose en una mujer hermosa.',
+        imageUrl: '/images/patasola.jpg',
+      },
     ];
-    return await this.legendRepo.save(data);
+    const legends = await this.legendRepo.save(data);
+    this.logger.log(' Leyendas creadas');
+    return legends;
   }
-
   private async createRegions(legends: Legend[]) {
     const data: Partial<Region>[] = [
+      // Regiones originales
       {
         name: 'Cumbres Andinas',
         description: 'Región de gran altitud con antiguos senderos.',
@@ -102,12 +139,36 @@ export class SeedService {
         longitude: -79.90,
         legend: legends[1],
       },
+      // Regiones colombianas
+      {
+        name: 'Cundinamarca',
+        description: 'Región andina de clima frío, hogar de varias lagunas sagradas.',
+        latitude: 4.936,
+        longitude: -73.833,
+        legend: legends[2], // La Llorona
+      },
+      {
+        name: 'Antioquia',
+        description: 'Región montañosa conocida por sus leyendas campesinas y relatos tradicionales.',
+        latitude: 5.587,
+        longitude: -75.822,
+        legend: legends[3], // El Sombrerón
+      },
+      {
+        name: 'Amazonas',
+        description: 'Zona selvática con mitología indígena muy rica.',
+        latitude: -4.215,
+        longitude: -69.940,
+        legend: legends[4], // La Patasola
+      },
     ];
-    return await this.regionRepo.save(data);
+    const regions = await this.regionRepo.save(data);
+    this.logger.log('Regiones creadas');
+    return regions;
   }
-
   private async createHotels() {
     const data: Partial<Hotel>[] = [
+      // Hoteles originales
       {
         name: 'Lodge Horizonte',
         address: 'Av. Montaña 123',
@@ -126,12 +187,42 @@ export class SeedService {
         website: 'https://forestretreat.example.com',
         phone: '+593 555 9876',
       },
+      // Hoteles colombianos
+      {
+        name: 'Hotel Lagunas Encantadas',
+        address: 'Guatavita, Cundinamarca',
+        latitude: 4.936,
+        longitude: -73.833,
+        rating: 4,
+        website: 'https://lagunasencantadas.com',
+        phone: '3104567890',
+      },
+      {
+        name: 'Hotel Montañas Verdes',
+        address: 'Jardín, Antioquia',
+        latitude: 5.587,
+        longitude: -75.822,
+        rating: 5,
+        website: 'https://montanasverdes.com',
+        phone: '3109876543',
+      },
+      {
+        name: 'Hotel Selva Mística',
+        address: 'Leticia, Amazonas',
+        latitude: -4.215,
+        longitude: -69.940,
+        rating: 4,
+        website: 'https://selvamistica.co',
+        phone: '3201239876',
+      },
     ];
-    return await this.hotelRepo.save(data);
+    const hotels = await this.hotelRepo.save(data);
+    this.logger.log('Hoteles creados');
+    return hotels;
   }
-
   private async createRestaurants() {
     const data: Partial<Restaurant>[] = [
+      // Restaurantes originales
       {
         name: 'Sabores Andinos',
         address: 'Av. Montaña 789',
@@ -150,12 +241,42 @@ export class SeedService {
         category: 'Fusión',
         website: 'https://junglecuisine.example.com',
       },
+      // Restaurantes colombianos
+      {
+        name: 'Fogón Andino',
+        address: 'Zipaquirá, Cundinamarca',
+        latitude: 5.026,
+        longitude: -74.005,
+        rating: 5,
+        category: 'Comida Tradicional',
+        website: 'https://fogonandino.com',
+      },
+      {
+        name: 'La Parrilla Paisa',
+        address: 'Rionegro, Antioquia',
+        latitude: 6.155,
+        longitude: -75.374,
+        rating: 4,
+        category: 'Parrilla',
+        website: 'https://parrillapaisa.com',
+      },
+      {
+        name: 'Sabores de la Selva',
+        address: 'Leticia, Amazonas',
+        latitude: -4.215,
+        longitude: -69.940,
+        rating: 5,
+        category: 'Amazónica',
+        website: 'https://saboresselva.co',
+      },
     ];
-    return await this.restaurantRepo.save(data);
+    const restaurants = await this.restaurantRepo.save(data);
+    this.logger.log('Restaurantes creados');
+    return restaurants;
   }
-
   private async createEventPlaces(regions: Region[], legends: Legend[], hotels: Hotel[], restaurants: Restaurant[]) {
     const data: Partial<EventPlace>[] = [
+      // Sitios originales
       {
         name: 'Festival del Tesoro',
         description: 'Festival anual que celebra la leyenda de la Serpiente Dorada.',
@@ -178,8 +299,55 @@ export class SeedService {
         hotel: hotels[1],
         restaurant: restaurants[1],
       },
+      // Sitios turísticos colombianos
+      {
+        name: 'Laguna de Guatavita',
+        description: 'Laguna sagrada vinculada a la Leyenda del Dorado.',
+        latitude: 4.936,
+        longitude: -73.833,
+        type: EventPlaceType.RUTA,
+        region: regions[2], // Cundinamarca
+        legend: legends[2], // La Llorona
+        hotel: hotels[2],   // Hotel Lagunas Encantadas
+        restaurant: restaurants[2], // Fogón Andino
+      },
+      {
+        name: 'Cascada del Amor',
+        description: 'Sitio misterioso donde se aparece La Llorona.',
+        latitude: 4.940,
+        longitude: -73.830,
+        type: EventPlaceType.RUTA,
+        region: regions[2], // Cundinamarca
+        legend: legends[2], // La Llorona
+        hotel: hotels[2],   // Hotel Lagunas Encantadas
+        restaurant: restaurants[2], // Fogón Andino
+      },
+      {
+        name: 'Cerro Tusa',
+        description: 'Montaña piramidal envuelta en mitos paisas.',
+        latitude: 5.587,
+        longitude: -75.822,
+        type: EventPlaceType.RUTA,
+        region: regions[3], // Antioquia
+        legend: legends[3], // El Sombrerón
+        hotel: hotels[3],   // Hotel Montañas Verdes
+        restaurant: restaurants[3], // La Parrilla Paisa
+      },
+      {
+        name: 'Reserva Natural Tanimboca',
+        description: 'Selva profunda donde se dice vive la Patasola.',
+        latitude: -4.215,
+        longitude: -69.940,
+        type: EventPlaceType.RUTA,
+        region: regions[4], // Amazonas
+        legend: legends[4], // La Patasola
+        hotel: hotels[4],   // Hotel Selva Mística
+        restaurant: restaurants[4], // Sabores de la Selva
+      },
     ];
-    return await this.eventPlaceRepo.save(data);
+    const eventPlaces = await this.eventPlaceRepo.save(data);
+    this.logger.log('Sitios turísticos creados');
+    return eventPlaces;
   }
 
   private async createUsers() {
@@ -213,9 +381,9 @@ export class SeedService {
     ];
     return await this.userRepo.save(data);
   }
-
   private async createReviews(users: User[], eventPlaces: EventPlace[], hotels: Hotel[], restaurants: Restaurant[]) {
     const data: Partial<Review>[] = [
+      // Reviews originales
       {
         rating: 5,
         comment: '¡Experiencia de festival increíble!',
@@ -237,12 +405,36 @@ export class SeedService {
         entityId: restaurants[0].id_restaurant,
         user: users[1],
       },
+      // Reviews de lugares colombianos
+      {
+        rating: 5,
+        comment: 'Experiencia increíble en Guatavita!',
+        entityType: ReviewEntityType.EVENT_PLACE,
+        entityId: eventPlaces[2]?.id_eventPlace, // Laguna de Guatavita
+        user: users[1],
+      },
+      {
+        rating: 4,
+        comment: 'Hermoso lugar pero algo frío.',
+        entityType: ReviewEntityType.EVENT_PLACE,
+        entityId: eventPlaces[3]?.id_eventPlace, // Cascada del Amor
+        user: users[0],
+      },
+      {
+        rating: 5,
+        comment: 'Lugar mágico lleno de energía.',
+        entityType: ReviewEntityType.EVENT_PLACE,
+        entityId: eventPlaces[5]?.id_eventPlace, // Reserva Natural Tanimboca
+        user: users[1],
+      },
     ];
-    return await this.reviewRepo.save(data);
+    const reviews = await this.reviewRepo.save(data);
+    this.logger.log(' Reviews creadas');
+    return reviews;
   }
-
   private async createMythStories(users: User[], regions: Region[]) {
     const data: Partial<MythStory>[] = [
+      // Historias originales
       {
         title: 'El Guardián Serpiente',
         content: 'La leyenda cuenta de una serpiente dorada que protege caminos sagrados.',
@@ -257,7 +449,31 @@ export class SeedService {
         region: regions[1],
         user: users[1],
       },
+      // Historias mitológicas colombianas
+      {
+        title: 'Encuentro con La Llorona en Guatavita',
+        content: 'Un campesino asegura haber escuchado los lamentos mientras caminaba de noche...',
+        imageUrl: '/images/llorona-story.jpg',
+        region: regions[2], // Cundinamarca
+        user: users[1],
+      },
+      {
+        title: 'Sombrerón en Antioquia',
+        content: 'En las fincas cafeteras se cuenta que una mujer fue visitada varias veces por un pequeño hombre elegante...',
+        imageUrl: '/images/sombreron-story.jpg',
+        region: regions[3], // Antioquia
+        user: users[0],
+      },
+      {
+        title: 'La Patasola en la selva amazónica',
+        content: 'Un grupo de turistas perdió el camino al escuchar a una mujer pidiendo ayuda...',
+        imageUrl: '/images/patasola-story.jpg',
+        region: regions[4], // Amazonas
+        user: users[1],
+      },
     ];
-    return await this.storyRepo.save(data);
+    const stories = await this.storyRepo.save(data);
+    this.logger.log('Historias mitológicas creadas');
+    return stories;
   }
 }

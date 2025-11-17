@@ -9,7 +9,8 @@ import { User } from '../../users/entities/user.entity';
 
 /**
  * Entidad Credential
- * Credenciales del usuario
+ * Credenciales del usuario — Solo contiene datos sensibles:
+ * password, roles, refresh token, reset tokens.
  */
 @Entity('credentials')
 export class Credential {
@@ -36,7 +37,14 @@ export class Credential {
   @Column({ type: 'timestamp', nullable: true })
   reset_token_expires?: Date;
 
-  @OneToOne(() => User, (user) => user.credential)
+   /**
+   * Relación 1:1 con User
+   * - Cada usuario tiene exactamente un registro de credenciales.
+   * - CASCADE elimina las credenciales cuando se borra el usuario.
+   */
+  @OneToOne(() => User, (user) => user.credential, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'id_user' })
   user: User;
 }
