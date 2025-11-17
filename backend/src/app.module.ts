@@ -13,6 +13,7 @@ import { CredentialsModule } from './credentials/credentials.module';
 import { MythStoriesModule } from './myth-stories/myth-stories.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { SeedModule } from './database/seed.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
     MythStoriesModule,
     UsersModule,
     AuthModule,
+    SeedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
