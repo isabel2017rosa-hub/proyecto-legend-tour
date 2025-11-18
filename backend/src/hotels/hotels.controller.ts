@@ -34,16 +34,19 @@ import { Roles } from '../auth/decorators/roles.decorator';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class HotelsController {
-  constructor(private readonly hotelsService: HotelsService) {}  @Post()
+  constructor(private readonly hotelsService: HotelsService) {}
+
+  @Post()
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @ApiOperation({ summary: 'Crear un nuevo hotel (solo admin)' })
+  @ApiOperation({ summary: 'Crear hotel (solo los administradores)' })
   @ApiCreatedResponse({ description: 'Hotel creado exitosamente' })
   @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
-  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden crear hoteles.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado: Solo los administradores pueden crear hoteles.' })
   create(@Body() createHotelDto: CreateHotelDto) {
     return this.hotelsService.create(createHotelDto);
   }
+
   @Get()
   @ApiOperation({ summary: 'Obtener todos los hoteles (admin y usuarios normales)' })
   @ApiOkResponse({ description: 'Lista de hoteles' })
@@ -66,6 +69,7 @@ export class HotelsController {
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.hotelsService.findOne(id);
   }
+
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles('admin')
@@ -79,6 +83,7 @@ export class HotelsController {
   ) {
     return this.hotelsService.update(id, updateHotelDto);
   }
+
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('admin')

@@ -31,10 +31,10 @@ export class RestaurantsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles('admin')
-  @ApiOperation({ summary: 'Crear restaurante (solo admin)' })
+  @ApiOperation({ summary: 'Crear restaurante (solo los administradores)' })
   @ApiCreatedResponse({ description: 'Restaurante creado correctamente.', type: Restaurant })
   @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
-  @ApiForbiddenResponse({ description: 'Acceso denegado. Solo administradores pueden crear restaurantes.' })
+  @ApiForbiddenResponse({ description: 'Acceso denegado: Solo los administradores pueden crear restaurantes.' })
   create(@Body() dto: CreateRestaurantDto) {
     return this.restaurantsService.create(dto);
   }
@@ -46,24 +46,6 @@ export class RestaurantsController {
   @ApiUnauthorizedResponse({ description: 'Token inválido o no proporcionado. Requiere autenticación.' })
   findAll(@Query('skip', ParseIntPipe) skip?: number, @Query('take', ParseIntPipe) take?: number) {
     return this.restaurantsService.findAll({ skip, take });
-  }
-
-  @Get('nearby')
-  @ApiOperation({ summary: 'Buscar restaurantes cercanos' })
-  @ApiQuery({ name: 'lat', required: true, type: Number })
-  @ApiQuery({ name: 'lng', required: true, type: Number })
-  @ApiQuery({ name: 'radius', required: false, type: Number })
-  @ApiQuery({ name: 'skip', required: false, type: Number })
-  @ApiQuery({ name: 'take', required: false, type: Number })
-  @ApiOkResponse({ description: 'Restaurantes cercanos ordenados por distancia.', type: [Restaurant] })
-  findNearby(
-    @Query('lat', ParseFloatPipe) lat: number,
-    @Query('lng', ParseFloatPipe) lng: number,
-    @Query('radius', ParseFloatPipe) radius = 50,
-    @Query('skip', ParseIntPipe) skip?: number,
-    @Query('take', ParseIntPipe) take?: number,
-  ) {
-    return this.restaurantsService.findNearby(lat, lng, radius, { skip, take });
   }
 
   @Get('search/by-name')
