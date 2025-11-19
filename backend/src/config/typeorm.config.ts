@@ -1,14 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Credential } from '../credentials/entities/credential.entity';
-import { Review } from '../reviews/entities/review.entity';
-import { User } from '../users/entities/user.entity';
-import { Region } from '../regions/entities/region.entity';
-import { MythStory } from '../myth-stories/entities/myth-story.entity';
-import { EventPlace } from '../event-places/entities/event-place.entity';
-import { Legend } from '../legends/entities/legend.entity';
-import { Hotel } from '../hotels/entities/hotel.entity';
-import { Restaurant } from '../restaurants/entities/restaurant.entity';
 
 ConfigModule.forRoot({ isGlobal: true });
 
