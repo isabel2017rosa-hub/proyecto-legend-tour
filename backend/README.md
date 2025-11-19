@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/docs/imagenes/logo.png" width="250" />
+  <img src="docs/imagenes/logo.png" width="250" />
 </p>
 
 Legen Tour es un backend diseñado para promover el turismo cultural y místico en Colombia, mostrando cómo la historia, los mitos y las leyendas se entrelazan con lugares reales que hoy pueden visitarse.
