@@ -44,7 +44,7 @@ async function bootstrap() {
 
   const port = Number(process.env.PORT ?? 3002);
   const host = process.env.HOST ?? '127.0.0.1';
-  await app.listen(port, host);
+  await app.listen(3002);
   const baseUrl = `http://${host}:${port}`;
   console.log(` LegendTour API running on: ${baseUrl}`);
   console.log(` Swagger UI: http://localhost:${port}/api`);
