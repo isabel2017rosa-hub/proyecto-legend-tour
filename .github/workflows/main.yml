@@ -27,4 +27,4 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/LegendTour:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/legend_tour:latest
