@@ -10,8 +10,9 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'legend_tour',
-  synchronize: process.env.DB_SYNC === 'false' ? false : true, // desactivar en producción
+  synchronize: true, // desactivar en producción
   autoLoadEntities: true,
   logging: process.env.DB_LOGGING === 'true',
+  dropSchema: true,
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 };
