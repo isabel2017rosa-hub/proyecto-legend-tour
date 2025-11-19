@@ -13,8 +13,8 @@ const config: DataSourceOptions = {
   password: process.env.DB_PASSWORD,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/migrations/*.js'],
-  logging: false,
-  synchronize: false,
+  logging: true,
+  synchronize: true,
   dropSchema: false,
   migrationsTableName: 'migrations_history',
 };
