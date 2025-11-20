@@ -15,7 +15,7 @@ const config: DataSourceOptions = {
   migrations: ['dist/migrations/*.js'],
   logging: true,
   synchronize: true,
-  dropSchema: false,
+  dropSchema: true,
   migrationsTableName: 'migrations_history',
 };
 export default registerAs('typeorm', () => config);
